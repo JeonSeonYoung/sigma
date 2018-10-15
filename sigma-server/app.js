@@ -8,7 +8,20 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var loginRouter = require('./routes/login');
 
+const apiRoutes = require('./routes');
+const config = require('./config');
+
+const session = require('express-session');
+
+
 var app = express();
+
+//세션 설정
+app.use(session({
+	secret: config.sessionKey,
+	resave: false,
+	saveUninitialized: true
+}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,6 +36,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/login', login);
+
+app.use('/api', apiRoutes);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
