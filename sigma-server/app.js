@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const bodyParser = require('body-parser');   //요청 body 파싱을 위한 모듈
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -13,8 +14,9 @@ const config = require('./config');
 
 const session = require('express-session');
 
-
 var app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //세션 설정
 app.use(session({
