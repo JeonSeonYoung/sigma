@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const regCtrl = require('./ctrl');
+const safeAsyncCall = require('../utils/routerUtils').safeAsyncCall;
 
 /**
  * 가입 전 인증 메일을 보낸다.
  */
-router.post('/sendEmail', regCtrl.sendAuthMail);
+router.post('/sendEmail', safeAsyncCall(regCtrl.sendAuthMail));
 
 /**
  * 세션에 담긴 인증메일 코드 정보와 넘겨받은 코드 정보를 비교한다.

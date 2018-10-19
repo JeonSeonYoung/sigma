@@ -1,13 +1,16 @@
 const uuidV4 = require('uuid/v4');
 const mailUtils = require('../../utils/mailUtils');
 
+//인증메일 제한 시간(초)
+const LIMIT_SECONDS = 180;
+
 /**
  * 인증 메일을 보낸다.
  */
-exports.sendAuthMail = (req, resp, next)=>{
-    
+exports.sendAuthMail = async (req, resp, next)=>{
+
     const authCode = uuidV4();
-    const sendDateAt = new Date().getTime();
+    const sendDateAt = Date.now();
 
     req.session.authEmailData = {
         authCode
@@ -15,13 +18,13 @@ exports.sendAuthMail = (req, resp, next)=>{
         , isAuthentifier : false
     }
 
-    //TODO : promise 객체로 변환
-    mailUtils.sendMail({
-        subject : "subject"
+    await mailUtils.sendMail({
+        subject : "본인인증 코드 정보"
         , text : `코드 정보 : ${authCode}`
+        , to : req.body.userMail
     });
 
-    return resp.json({
+    return resp.status(201).json({
         result : 'success'
     });
 }
@@ -30,28 +33,21 @@ exports.sendAuthMail = (req, resp, next)=>{
  * 세션에 담긴 인증메일 코드 정보와 넘겨받은 코드 정보를 비교한다.
  */
 exports.checkAuthCodeFromSession = (req, resp, next)=>{
-    //TODO : 세션에 담긴 코드와 넘어온 코드 정보를 비교
     //TODO : session 정보가 유효한지 검사
 
-    const authCodeFromUser = req.params.authCode;
-
-    const {
-        authCode
-        , sendDateAt
-    } = req.session.authEmailData;
-
-
-    const checkDateAt = new Date().getTime();
-    const limitSeconds = 180;
+    const authCodeFromSession = req.session.authEmailData.authCode;
+    const sendDateAt = req.session.authEmailData.sendDateAt;
+    const authCodeFromUser = req.query.authCode;
+    const checkDateAt = Date.now();
 
     //제한시간 만료 확인
-    if(sendDateAt < Math.round(checkDateAt / limitSeconds)){
+    if(sendDateAt + (LIMIT_SECONDS * 1000) < checkDateAt){
         return resp.status(401).json({
             error: "expired auth code"
         });
     }
 
-    if(authCode && authCodeFromUser === authCode){
+    if(authCodeFromSession && authCodeFromUser === authCodeFromSession){
         //이메일 본인 인증 여부
         req.session.authEmailData.isAuthentifier = true;
 
@@ -90,7 +86,7 @@ exports.regUser = (req, resp, next)=>{
     //TODO : 유저 정보 암호화
     //TODO : 유저 모델에 정보를 담아 DB에 등록한다.
 
-    return resp.json({
+    return resp.status(201).json({
         result : 'success'
     });
 }
