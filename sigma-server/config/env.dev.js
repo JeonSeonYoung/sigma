@@ -13,6 +13,14 @@ const secret = {
             'callbackURL': '/api/authen/login/google/callback',
         }
     }
+    , db : {
+        host : "localhost"
+        , port : 3306
+        , dialect : "mysql" //db 종류
+        , name : "joo"      //데이터베이스 이름(스키마)
+        , userId : "joohyung"
+        , password : "joo12345"
+    }
     , sessionKey : '!@#sessionSID#!@'
 }
 
