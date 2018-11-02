@@ -22,7 +22,7 @@ router.post('/', (req, resp, next)=>{
     //TODO : 유효성 검사. Joi 또는 자체 미들웨어 사용
 
     next();
-}, regCtrl.regUser);
+}, safeAsyncCall(regCtrl.regUser));
 
 /**
  * 회원 정보를 수정한다.

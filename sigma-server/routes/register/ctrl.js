@@ -1,5 +1,6 @@
 const uuidV4 = require('uuid/v4');
 const mailUtils = require('../../utils/mailUtils');
+const { User } = require('../../models');
 
 //인증메일 제한 시간(초)
 const LIMIT_SECONDS = 180;
@@ -64,7 +65,7 @@ exports.checkAuthCodeFromSession = (req, resp, next)=>{
 /**
  * 회원가입을 처리한다.
  */
-exports.regUser = (req, resp, next)=>{
+exports.regUser = async (req, resp, next)=>{
 
     //이메일 본인 인증과정 체크
     if(!isAuthentifierFromEmail(req)) {
@@ -77,17 +78,34 @@ exports.regUser = (req, resp, next)=>{
         passwd
         , nickName
         , thumbNail
+        , faceBook
+        , google
     } = req.body;
 
+    /*
     const {
         email
     } = req.session;
+    */
 
-    //TODO : 유저 정보 암호화
-    //TODO : 유저 모델에 정보를 담아 DB에 등록한다.
+    //TODO : session 테스트
+    const email = "email@from.dummy";
+
+
+    const createdUser = await User.register({
+        passwd
+        , nickName
+        , thumbNail
+        , faceBook
+        , google
+        , email
+    });
+
+    const userData = createdUser.serialize();
 
     return resp.status(201).json({
         result : 'success'
+        , data : userData
     });
 }
 
